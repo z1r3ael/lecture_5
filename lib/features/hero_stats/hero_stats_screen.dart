@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lecture_5/domain/model/hero_stats_model.dart';
-import 'package:lecture_5/domain/service/hero_stats_service.dart';
+import 'package:lecture_5/features/hero_stats/hero_stats_cubit.dart';
+import 'package:lecture_5/features/hero_stats/hero_stats_state.dart';
 
 class HeroStats extends StatefulWidget {
   const HeroStats({super.key});
@@ -10,9 +12,6 @@ class HeroStats extends StatefulWidget {
 }
 
 class _HeroStatsState extends State<HeroStats> {
-  final _service = HeroStatsService();
-  List<HeroStatsModel>? _heroes;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,40 +20,75 @@ class _HeroStatsState extends State<HeroStats> {
         backgroundColor: Colors.red,
         title: const Text('HeroStats'),
       ),
-      body: _heroes == null
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    'Справочник героев',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 30,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: () {
-                      _service.getHeroStats().then((value) {
-                        setState(() {
-                          _heroes = value;
-                        });
-                      });
-                    },
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                    child: const Text(
-                      'Загрузить информацию',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 20,
-                      ),
-                    ),
-                  ),
-                ],
+      body: BlocProvider(
+        create: (context) => HeroStatsCubit(),
+        child: BlocConsumer<HeroStatsCubit, HeroStatsState>(
+          listener: (context, state) {
+            if (state is HeroStatsError) {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: const Text('error'),
+                    content: Text(state.error),
+                  );
+                },
+              );
+            }
+          },
+          buildWhen: (previous, current) => current is HeroStatsBuildState,
+          builder: (context, state) {
+            if (state is HeroStatsLoading) {
+              return const Center(
+                child: CircularProgressIndicator(
+                  color: Colors.red,
+                ),
+              );
+            } else if (state is HeroStatsData) {
+              return HeroStatsWidget(
+                heroes: state.heroStats,
+              );
+            }
+            return const HeroStatInitWidget();
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class HeroStatInitWidget extends StatelessWidget {
+  const HeroStatInitWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text(
+            'Справочник героев',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 30,
+            ),
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: () {
+              context.read<HeroStatsCubit>().getData();
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text(
+              'Загрузить информацию',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 20,
               ),
-            )
-          : HeroStatsWidget(heroes: _heroes!),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -129,7 +163,10 @@ class SingleHeroWidget extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 4),
-              Text('Primary attr: ${hero.primaryAttr}', textAlign: TextAlign.start,),
+              Text(
+                'Primary attr: ${hero.primaryAttr}',
+                textAlign: TextAlign.start,
+              ),
               Text('Attack type: ${hero.attackType}'),
               Text('Roles: ${hero.roles.toString()}'),
               Text('Base health: ${hero.baseHealth}'),
