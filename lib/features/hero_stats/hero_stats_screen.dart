@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lecture_5/domain/model/hero_stats_model.dart';
-import 'package:lecture_5/features/hero_stats/hero_stats_cubit.dart';
+import 'package:lecture_5/features/hero_stats/hero_stats_bloc.dart';
+import 'package:lecture_5/features/hero_stats/hero_stats_event.dart';
 import 'package:lecture_5/features/hero_stats/hero_stats_state.dart';
 
 class HeroStats extends StatefulWidget {
@@ -21,30 +22,10 @@ class _HeroStatsState extends State<HeroStats> {
         title: const Text('HeroStats'),
       ),
       body: BlocProvider(
-        create: (context) => HeroStatsCubit(),
-        child: BlocConsumer<HeroStatsCubit, HeroStatsState>(
-          listener: (context, state) {
-            if (state is HeroStatsError) {
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    title: const Text('error'),
-                    content: Text(state.error),
-                  );
-                },
-              );
-            }
-          },
-          buildWhen: (previous, current) => current is HeroStatsBuildState,
+        create: (context) => HeroStatsBloc(),
+        child: BlocBuilder<HeroStatsBloc, HeroStatsState>(
           builder: (context, state) {
-            if (state is HeroStatsLoading) {
-              return const Center(
-                child: CircularProgressIndicator(
-                  color: Colors.red,
-                ),
-              );
-            } else if (state is HeroStatsData) {
+            if (state is HeroStatsData) {
               return HeroStatsWidget(
                 heroes: state.heroStats,
               );
@@ -76,7 +57,7 @@ class HeroStatInitWidget extends StatelessWidget {
           const SizedBox(height: 20),
           ElevatedButton(
             onPressed: () {
-              context.read<HeroStatsCubit>().getData();
+              context.read<HeroStatsBloc>().add(GetDataEvent());
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: const Text(
