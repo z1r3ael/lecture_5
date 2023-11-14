@@ -1,9 +1,16 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:lecture_5/features/hero_stats/hero_stats_screen.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+void main() => runZonedGuarded(
+      () => runApp(
+        const MyApp(),
+      ),
+      (error, stack) {
+        print(error.toString());
+      },
+    );
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -11,7 +18,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'HeroStats',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
