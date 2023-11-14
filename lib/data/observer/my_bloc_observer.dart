@@ -4,31 +4,45 @@ class MyBlocObserver extends BlocObserver {
 
   @override
   void onCreate(BlocBase<dynamic> bloc) {
-    print('RuntimeTypeBloc: ${bloc.runtimeType}');
+    super.onCreate(bloc);
+    print('onCreate RuntimeTypeBloc: ${bloc.runtimeType}');
   }
 
   @override
   void onClose(BlocBase<dynamic> bloc) {
-    print('RuntimeTypeBloc: ${bloc.runtimeType}');
+    super.onClose(bloc);
+    print('onClose RuntimeTypeBloc: ${bloc.runtimeType}');
   }
 
   @override
   void onError(BlocBase<dynamic> bloc, Object error, StackTrace stackTrace) {
-    print('RuntimeTypeBloc: ${bloc.runtimeType} / ${error.toString()} / ${stackTrace.toString()}');
+    super.onError(bloc, error, stackTrace);
+    print('onError RuntimeTypeBloc: ${bloc.runtimeType} /'
+        ' Error: ${error.toString()} /'
+        ' StackTrace: ${stackTrace.toString()}');
   }
 
   @override
   void onTransition(Bloc<dynamic, dynamic> bloc, Transition<dynamic, dynamic> transition) {
-    print('RuntimeTypeBloc: ${bloc.runtimeType} / Transition: ${transition.event} / TransitionCurrentState: ${transition.currentState} / TransitionNextState: ${transition.nextState}');
+    super.onTransition(bloc, transition);
+    print('onTransition RuntimeTypeBloc: ${bloc.runtimeType} /'
+        ' TransitionEvent: ${transition.event.runtimeType} /'
+        ' TransitionCurrentState: ${transition.currentState.runtimeType} /'
+        ' TransitionNextState: ${transition.nextState.runtimeType}');
   }
 
   @override
   void onChange(BlocBase<dynamic> bloc, Change<dynamic> change) {
-    print('RuntimeTypeBloc: ${bloc.runtimeType} / ChangeCurrentState: ${change.currentState} / ChangeNextState: ${change.nextState}');
+    super.onChange(bloc, change);
+    print('onChange RuntimeTypeBloc: ${bloc.runtimeType} /'
+        ' ChangeCurrentState: ${change.currentState.runtimeType} /'
+        ' ChangeNextState: ${change.nextState.runtimeType}');
   }
 
   @override
   void onEvent(Bloc<dynamic, dynamic> bloc, Object? event) {
-    print('RuntimeTypeBloc: ${bloc.runtimeType} / ${event.runtimeType}');
+    super.onEvent(bloc, event);
+    print('onEvent RuntimeTypeBloc: ${bloc.runtimeType} /'
+        ' Event: ${event.runtimeType}');
   }
 }
